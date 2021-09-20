@@ -1,0 +1,4 @@
+Flask==2.0.1
+requests==2.26.0
+mysql_connector_repackaged==0.3.1
+pymysql==1.0.2
