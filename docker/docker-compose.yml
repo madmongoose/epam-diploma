@@ -1,0 +1,34 @@
+version: '2'
+services:
+  db:
+    image: 'mysql'
+    restart: always
+    
+    expose:
+      - '3306'
+    ports:
+      - '3306:3306'
+
+    environment:
+      MYSQL_ROOT_PASSWORD: 'root'
+      MYSQL_DATABASE: 'cbr'
+      MYSQL_USER: 'cbr'
+      MYSQL_PASSWORD: 'cbrpass'
+      MYSQL_ROOT_HOST: '%'
+
+  api:
+    image: 'api'
+    restart: always
+    
+    expose:
+      - '5000'
+    ports:
+      - '5000:5000'
+  fe:
+    image: 'fe'
+    restart: always
+    
+    expose:
+      - '8501'
+    ports:
+      - '80:8501'
