@@ -13,8 +13,8 @@ app.config["DEBUG"] = True
 @app.route('/', methods=['GET'])
 def home():
     conn = pymysql.connect(user='cbr',
-							password='epm-rds-pass',
-							host='epm-rds-host',
+							password='$epm-rds-pass',
+							host='$epm-rds-host',
 							database='cbr')
     if (conn) :
       print ("Connected Successfully")
