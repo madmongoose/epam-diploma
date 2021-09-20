@@ -13,8 +13,8 @@ app.config["DEBUG"] = True
 @app.route('/', methods=['GET'])
 def home():
     conn = pymysql.connect(user='cbr',
-							password='$epm-rds-pass',
-							host='$epm-rds-host',
+							password='${epm-rds-pass}',
+							host='${epm-rds-host}',
 							database='cbr')
     if (conn) :
       print ("Connected Successfully")
@@ -63,8 +63,8 @@ def home():
 @app.route('/clear', methods=['GET'])
 def clear():
     conn = pymysql.connect(user='cbr',
-                            password='$epm-rds-pass',
-                            host='$epm-rds-host',
+                            password='${epm-rds-pass}',
+                            host='${epm-rds-host}',
                             database='cbr')
     cursor = conn.cursor()
     cursor.execute("DROP TABLE mkr")
