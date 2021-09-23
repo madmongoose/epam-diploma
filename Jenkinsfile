@@ -1,59 +1,54 @@
 pipeline {
-    agent any
-       triggers {
-        pollSCM "* * * * *"
-       }
-    stages {
-        stage('Build Application') { 
-            steps {
-                echo '=== Building Api ==='
-                sh 'mvn -B -DskipTests clean package' 
-            }
-        }
-        stage('Test Application') {
-            steps {
-                echo '=== Testing Petclinic Application ==='
-                sh 'mvn test'
-            }
-            post {
-                always {
-                    junit 'target/surefire-reports/*.xml'
-                }
-            }
-        }
-        stage('Build Docker Image') {
-            when {
-                branch 'master'
-            }
-            steps {
-                echo '=== Building Petclinic Docker Image ==='
-                script {
-                    app = docker.build("madmongoose/petclinic-spinnaker-jenkins")
-                }
-            }
-        }
-        stage('Push Docker Image') {
-            when {
-                branch 'master'
-            }
-            steps {
-                echo '=== Pushing Petclinic Docker Image ==='
-                script {
-                    GIT_COMMIT_HASH = sh (script: "git log -n 1 --pretty=format:'%H'", returnStdout: true)
-                    SHORT_COMMIT = "${GIT_COMMIT_HASH[0..7]}"
-                    docker.withRegistry('https://registry.hub.docker.com', 'dockerHubCredentials') {
-                        app.push("$SHORT_COMMIT")
-                        app.push("latest")
-                    }
-                }
-            }
-        }
-        stage('Remove local images') {
-            steps {
-                echo '=== Delete the local docker images ==='
-                sh("docker rmi -f madmongoose/petclinic-spinnaker-jenkins:latest || :")
-                sh("docker rmi -f madmongoose/petclinic-spinnaker-jenkins:$SHORT_COMMIT || :")
-            }
-        }
-    }
+	agent any
+	stages {
+		stage ("Git checkout"){
+			steps {
+				git branch: "main",
+					url: "https://github.com/madmongoose/epam-diploma.git"
+				sh "ls"
+				
+			}
+		}
+		stage ("Python Flask Prepare"){
+			steps {
+				sh "pip3 install -r python/api/requirements.txt"
+			}
+
+		}
+		stage ("Unit Test"){
+			steps{
+				sh "python3 python/api/basic-test-api.py"
+			}
+		}
+		stage ("Python Bandit Security Scan"){
+			steps{
+				sh "cat report/banditResult.json"
+				sh "sh run_bandit.sh || true"
+				sh "ls"
+			}
+		}
+		stage ("Dependency Check with Python Safety"){
+			steps{
+				sh "docker run --rm --volume \$(pwd) pyupio/safety:latest safety check"
+				sh "docker run --rm --volume \$(pwd) pyupio/safety:latest safety check --json > report.json"
+			}
+		}
+		stage ("Static Analysis with python-taint"){
+			steps{
+				sh "docker run --rm --volume \$(pwd) madmongoose/test pyt ."
+			}
+		}
+		stage ("sonar-publish"){
+			steps {
+				echo "===========Performing Sonar Scan============"
+				sh "${tool("sonarqube")}/bin/sonar-scanner"
+			}
+		}
+		stage ("docker-push"){
+			steps {
+				echo "===========Performing Sonar Scan============"
+				sh "${tool("sonarqube")}/bin/sonar-scanner"
+			}
+		}
+	}
 }
