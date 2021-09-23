@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: epm-svc-lb
+  labels:
+    env  : prod
+    owner: RomanGorokhovsky
+spec:
+  selector:
+    project: Epam    # Selecting PODS with those Labels
+  ports:
+    - name      : app-listener
+      protocol  : TCP
+      port      : 80  # Port on Load Balancer
+      targetPort: 8501  # Port on POD
+  type: LoadBalancer
