@@ -1,13 +1,19 @@
 import os
+import flaskr
 import unittest
+import tempfile
 
-from app import app
+class FlaskrTestCase(unittest.TestCase):
 
+    def setUp(self):
+        self.db_fd, flaskr.app.config['DATABASE'] = tempfile.mkstemp()
+        flaskr.app.config['TESTING'] = True
+        self.app = flaskr.app.test_client()
+        flaskr.init_db()
 
-def test_main_page(self):
-    response = self.app.get('/', follow_redirects=False)
-    self.assertEqual(response.status_code, 500)
+    def tearDown(self):
+        os.close(self.db_fd)
+        os.unlink(flaskr.app.config['DATABASE'])
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()
