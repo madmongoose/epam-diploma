@@ -1,7 +1,7 @@
 import os
 import unittest
  
-from movie import app, db
+from app import app
  
  
 TEST_DB = 'test.db'
