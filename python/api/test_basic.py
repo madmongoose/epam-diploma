@@ -27,7 +27,7 @@ class BasicTests(unittest.TestCase):
  
  
     def test_main_page(self):
-        response = self.app.get('/', follow_redirects=True)
+        response = self.app.get('/', follow_redirects=False)
         self.assertEqual(response.status_code, 200)
  
  
