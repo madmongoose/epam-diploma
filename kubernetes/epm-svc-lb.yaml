@@ -7,7 +7,7 @@ metadata:
     owner: RomanGorokhovsky
 spec:
   selector:
-    project: Epam    # Selecting PODS with those Labels
+    project: Epam # Selecting PODS with those Labels
   ports:
     - name      : app-listener
       protocol  : TCP
