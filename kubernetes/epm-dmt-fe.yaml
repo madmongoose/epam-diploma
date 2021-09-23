@@ -1,0 +1,45 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: epm-dmt-fe
+  labels:
+    app  : epm-dmt-fe
+    env  : prod
+    owner: RomanGorokhovsky
+spec:
+#replicas: 2
+  selector:
+    matchLabels:
+      project: Epam
+  template:
+    metadata:
+      labels:
+        project: Epam
+    spec:
+      containers:
+        - name : fe
+          image: madmongoose/fe:latest
+          ports:
+            - containerPort: 8501
+
+---
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: epm-dmt-fe-autoscaling
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v2beta1v1
+    kind: Deployment
+    name: epm-dmt-fe
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      targetAverageUtilization: 80

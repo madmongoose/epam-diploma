@@ -13,6 +13,6 @@ variable "common-tags" {
   default = {
       Owner = "Roman Gorokhovsky"
       Project = "Epam"
-      Environment = "Study"
+      Environment = "Dev"
   }
 }

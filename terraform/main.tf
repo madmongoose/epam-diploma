@@ -11,18 +11,18 @@
 #-------------------------------------------------
 
 provider "aws" {
-    region = "eu-west-2"
+  region = "eu-west-2"
 }
 
 data "aws_availability_zones" "available" {}
 
 data "aws_ami" "latest-amazon2" {
-    owners      = ["amazon"]
-    most_recent = true
-    filter {
-      name      = "name"
-      values    = ["amzn2-ami-hvm-*-x86_64-gp2"]
-    }
+  owners      = ["amazon"]
+  most_recent = true
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
 }
 
 #-------------------------------------------------
@@ -40,7 +40,7 @@ resource "aws_key_pair" "generated_key" {
   key_name   = var.generated_key_name
   public_key = tls_private_key.dev_key.public_key_openssh
 
-  provisioner "local-exec" {      # Key *.pem will be create in current directory
+  provisioner "local-exec" { # Key *.pem will be create in current directory
     command = "echo '${tls_private_key.dev_key.private_key_pem}' > ./'${var.generated_key_name}'.pem"
   }
 
@@ -50,37 +50,37 @@ resource "aws_key_pair" "generated_key" {
 }
 
 resource "aws_vpc" "epm-vpc-main" {
-  cidr_block            = "10.10.0.0/16"
-  instance_tenancy      = "default"
-  enable_dns_hostnames  = true
+  cidr_block           = "10.10.0.0/16"
+  instance_tenancy     = "default"
+  enable_dns_hostnames = true
 }
 
 resource "aws_security_group" "epm-sg-web" {
-  name = "epm-sg-web"
-  description    = "Allow web traffic"
-  vpc_id  = aws_vpc.epm-vpc-main.id
+  name        = "epm-sg-web"
+  description = "Allow web traffic"
+  vpc_id      = aws_vpc.epm-vpc-main.id
 
   dynamic "ingress" {
-      for_each = ["22","80","443","8080"]
+    for_each = ["22", "80", "443", "8080"]
     content {
-      from_port        = ingress.value
-      to_port          = ingress.value
-      protocol         = "tcp"
-      cidr_blocks      = ["0.0.0.0/0"]
+      from_port   = ingress.value
+      to_port     = ingress.value
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
   }
-} 
   egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
-  tags = merge(var.common-tags, {Name = "${var.common-tags["Environment"]} Dynamic Security Group"})
+  tags = merge(var.common-tags, { Name = "${var.common-tags["Environment"]} Dynamic Security Group" })
 }
 resource "aws_security_group" "epm-sg-db" {
-  name = "epm-sg-db"
+  name        = "epm-sg-db"
   description = "Allow SQL traffic"
-  vpc_id = aws_vpc.epm-vpc-main.id
+  vpc_id      = aws_vpc.epm-vpc-main.id
 }
 
 resource "aws_security_group_rule" "epm-sg-db-in-web" {
@@ -111,26 +111,26 @@ resource "aws_security_group_rule" "epm-sg-db-out" {
 }
 
 resource "aws_security_group" "epm-sg-eks-cluster" {
-  name = "epm-sg-eks-cluster"
-  description    = "Allow EKS traffic"
-  vpc_id  = aws_vpc.epm-vpc-main.id
+  name        = "epm-sg-eks-cluster"
+  description = "Allow EKS traffic"
+  vpc_id      = aws_vpc.epm-vpc-main.id
 
   dynamic "ingress" {
-      for_each = ["22","80","443","8080"]
+    for_each = ["22", "80", "443", "8080"]
     content {
-      from_port        = ingress.value
-      to_port          = ingress.value
-      protocol         = "tcp"
-      cidr_blocks      = ["0.0.0.0/0"]
+      from_port   = ingress.value
+      to_port     = ingress.value
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
   }
-} 
   egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
-  tags = merge(var.common-tags, {Name = "${var.common-tags["Environment"]} Dynamic Security Group"})
+  tags = merge(var.common-tags, { Name = "${var.common-tags["Environment"]} Dynamic Security Group" })
 }
 #-------------------------------------------------
 #
@@ -181,22 +181,22 @@ resource "aws_route_table_association" "epm-rta-2" {
 #-------------------------------------------------
 
 resource "aws_instance" "epm-control" {
-  ami                     = data.aws_ami.latest-amazon2.id
-  instance_type           = "t3.small"
-  subnet_id               = aws_subnet.epm-pub-net-1.id
-  vpc_security_group_ids  = [aws_security_group.epm-sg-web.id]
-  key_name                = aws_key_pair.generated_key.key_name
-  
-tags        = merge(var.common-tags, {Name = "${var.common-tags["Environment"]} Control Server"})
+  ami                    = data.aws_ami.latest-amazon2.id
+  instance_type          = "t3.small"
+  subnet_id              = aws_subnet.epm-pub-net-1.id
+  vpc_security_group_ids = [aws_security_group.epm-sg-web.id]
+  key_name               = aws_key_pair.generated_key.key_name
+
+  tags = merge(var.common-tags, { Name = "${var.common-tags["Environment"]} Control Server" })
 }
 
 resource "aws_instance" "epm-jenkins" {
-  ami                     = data.aws_ami.latest-amazon2.id
-  instance_type           = "t3.small"
-  subnet_id               = aws_subnet.epm-pub-net-1.id
-  vpc_security_group_ids  = [aws_security_group.epm-sg-web.id]
-  key_name                = aws_key_pair.generated_key.key_name
-  user_data = <<EOF
+  ami                    = data.aws_ami.latest-amazon2.id
+  instance_type          = "t3.medium"
+  subnet_id              = aws_subnet.epm-pub-net-1.id
+  vpc_security_group_ids = [aws_security_group.epm-sg-web.id]
+  key_name               = aws_key_pair.generated_key.key_name
+  user_data              = <<EOF
 #!/bin/bash
 sudo amazon-linux-extras install epel
 sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
@@ -206,9 +206,9 @@ sudo amazon-linux-extras install java-openjdk11 -y
 sudo yum -y install jenkins
 sudo systemctl daemon-reload
 sudo systemctl start jenkins
-sudo systemctl status jenkins
+sudo systemctl enable jenkins
 EOF
-tags        = merge(var.common-tags, {Name = "${var.common-tags["Environment"]} Jenkins"})
+  tags                   = merge(var.common-tags, { Name = "${var.common-tags["Environment"]} Jenkins" })
 }
 
 #-------------------------------------------------
@@ -247,43 +247,43 @@ data "aws_ssm_parameter" "get-epm-rds-pass" {
 
 resource "aws_rds_cluster" "epm-rds-cluster" {
 
-    cluster_identifier_prefix     = "epm-rds-cluster-"
-    engine                        = "aurora-mysql"
-    database_name                 = "cbr"
-    master_username               = "cbr"
-    master_password               = data.aws_ssm_parameter.get-epm-rds-pass.value
-    port                          = "3306"
-    backup_retention_period       = 14
-    db_subnet_group_name          = aws_db_subnet_group.epm-rds-sng.name
-    vpc_security_group_ids        = [aws_security_group.epm-sg-db.id]
-    skip_final_snapshot           = true
-    apply_immediately             = true
-    
-    tags = merge(var.common-tags, {Name = "${var.common-tags["Environment"]} MySQL Cluster"})
-    lifecycle {
-        create_before_destroy = true
-    }
+  cluster_identifier_prefix = "epm-rds-cluster-"
+  engine                    = "aurora-mysql"
+  database_name             = "cbr"
+  master_username           = "cbr"
+  master_password           = data.aws_ssm_parameter.get-epm-rds-pass.value
+  port                      = "3306"
+  backup_retention_period   = 14
+  db_subnet_group_name      = aws_db_subnet_group.epm-rds-sng.name
+  vpc_security_group_ids    = [aws_security_group.epm-sg-db.id]
+  skip_final_snapshot       = true
+  apply_immediately         = true
+
+  tags = merge(var.common-tags, { Name = "${var.common-tags["Environment"]} MySQL Cluster" })
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_rds_cluster_instance" "epm-rds-instances" {
 
-    count                 = 2
-    identifier            = "epm-rds-cluster${count.index}"
-    cluster_identifier    = aws_rds_cluster.epm-rds-cluster.id
-    instance_class        = "db.t3.small"
-    db_subnet_group_name  = aws_db_subnet_group.epm-rds-sng.name
-    publicly_accessible   = true
-    engine                = "aurora-mysql"
+  count                = 2
+  identifier           = "epm-rds-cluster${count.index}"
+  cluster_identifier   = aws_rds_cluster.epm-rds-cluster.id
+  instance_class       = "db.t3.small"
+  db_subnet_group_name = aws_db_subnet_group.epm-rds-sng.name
+  publicly_accessible  = true
+  engine               = "aurora-mysql"
 
-    lifecycle {
-        create_before_destroy = true
-    }
+  lifecycle {
+    create_before_destroy = true
+  }
 
 }
 resource "aws_db_subnet_group" "epm-rds-sng" {
-    name          = "epm-rds-sng"
-    description   = "Allowed subnets for Aurora DB cluster instances"
-    subnet_ids    = [aws_subnet.epm-pub-net-1.id, aws_subnet.epm-pub-net-2.id]
+  name        = "epm-rds-sng"
+  description = "Allowed subnets for Aurora DB cluster instances"
+  subnet_ids  = [aws_subnet.epm-pub-net-1.id, aws_subnet.epm-pub-net-2.id]
 }
 
 #-------------------------------------------------
@@ -372,9 +372,9 @@ resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerRegistryReadOnly" {
 resource "aws_eks_node_group" "epm-eks-nodes" {
   cluster_name    = aws_eks_cluster.epm-eks-cluster.name
   node_group_name = "epm-eks-nodes"
-  instance_types = ["t3.small"]
+  instance_types  = ["t3.small"]
   node_role_arn   = aws_iam_role.epm-eks-nodes.arn
-  subnet_ids    = [aws_subnet.epm-pub-net-1.id, aws_subnet.epm-pub-net-2.id]
+  subnet_ids      = [aws_subnet.epm-pub-net-1.id, aws_subnet.epm-pub-net-2.id]
 
   scaling_config {
     desired_size = 2
