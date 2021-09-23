@@ -1,10 +1,11 @@
 import requests
 import json
-
 import streamlit as st
-
 import pandas as pd
 
+
+st.title('Bank of Russia')
+st.header('Interbank Money Market')
 #draw the form when the page loads
 with st.form(key='my_form'):
     date_start = st.text_input(label='start date')
