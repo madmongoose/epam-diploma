@@ -1,9 +1,9 @@
 apiVersion : apps/v1
 kind: Deployment
 metadata:
-  name: epm-dmt-fe
+  name: fe
   labels:
-    app  : epm-dmt-fe
+    app  : fe
     env  : prod
     owner: RomanGorokhovsky
 spec:
@@ -31,7 +31,7 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v2beta1v1
     kind: Deployment
-    name: epm-dmt-fe
+    name: fe
   minReplicas: 2
   maxReplicas: 6
   metrics:
