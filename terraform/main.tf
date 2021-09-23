@@ -203,6 +203,7 @@ sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/
 sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
 sudo yum -y install epel-release # repository that provides 'daemonize'
 sudo amazon-linux-extras install java-openjdk11 -y
+sudo yum install java-11-openjdk-devel -y
 sudo yum -y install jenkins
 sudo systemctl daemon-reload
 sudo systemctl start jenkins

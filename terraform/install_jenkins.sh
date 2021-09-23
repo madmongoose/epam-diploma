@@ -41,8 +41,8 @@ sudo chmod +x /usr/local/bin/helm
 
 echo "Install Docker engine"
 sudo yum install docker -y
-#sudo usermod -a -G docker jenkins
-#sudo service docker start
+sudo usermod -a -G docker jenkins
+sudo service docker start
 sudo systemctl enable docker
 
 echo "Install Docker Compose"
