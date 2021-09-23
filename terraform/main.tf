@@ -61,7 +61,7 @@ resource "aws_security_group" "epm-sg-web" {
   vpc_id      = aws_vpc.epm-vpc-main.id
 
   dynamic "ingress" {
-    for_each = ["22", "80", "443", "8080"]
+    for_each = ["22", "80", "443", "8080", "9000"]
     content {
       from_port   = ingress.value
       to_port     = ingress.value
