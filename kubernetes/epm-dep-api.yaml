@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: epm-dep-api
+  name: api
   labels:
-    app: epm-dep-api
+    app: api
     env: prod
     owner: RomanGorokhovsky
 spec:
@@ -31,7 +31,7 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v2beta1v1
     kind: Deployment
-    name: epm-dep-api
+    name: api
   minReplicas: 2
   maxReplicas: 6
   metrics:
