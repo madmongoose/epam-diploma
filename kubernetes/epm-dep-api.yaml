@@ -1,13 +1,13 @@
-apiVersion : apps/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: epm-dep-api
   labels:
-    app  : epm-dep-api
-    env  : prod
+    app: epm-dep-api
+    env: prod
     owner: RomanGorokhovsky
 spec:
-#replicas: 2
+  #replicas: 2
   selector:
     matchLabels:
       project: Epam
@@ -17,7 +17,7 @@ spec:
         project: Epam
     spec:
       containers:
-        - name : api
+        - name: api
           image: madmongoose/api:latest
           ports:
             - containerPort: 5000
@@ -35,11 +35,11 @@ spec:
   minReplicas: 2
   maxReplicas: 6
   metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      targetAverageUtilization: 70
-  - type: Resource
-    resource:
-      name: memory
-      targetAverageUtilization: 80
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: 80
